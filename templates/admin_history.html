@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>All Exam History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="hero">
+        <div>
+          <h1 class="hero-title">All Exam History</h1>
+          <p class="hero-subtitle">
+            Separate view for all student exam attempts.
+          </p>
+          <div class="hero-badges">
+            <span class="badge info">Attempts</span>
+            <span class="badge warning">Review</span>
+            <span class="badge success">Students</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-pills">
+        <a class="nav-pill primary" href="/dashboard">Admin Dashboard</a>
+        <a class="nav-pill" href="/admin/students">Registered Students</a>
+        <a class="nav-pill danger" href="/admin_logout">Logout</a>
+      </div>
+      {% if msg %}
+      <div class="flash ok">{{ msg }}</div>
+      {% endif %}
+      {% if err %}
+      <div class="flash err">{{ err }}</div>
+      {% endif %}
+      <div class="card card-pad" style="margin-top: 16px">
+        <h2>Exam Attempts</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Student</th>
+              <th>Exam</th>
+              <th>Score</th>
+              <th>Time (s)</th>
+              <th>Date</th>
+              <th>History</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in attempts %}
+            <tr>
+              <td>{{ a["id"] }}</td>
+              <td>{{ a["student_name"] }}</td>
+              <td>{{ a["exam_title"] }}</td>
+              <td>{{ a["score"] }}/{{ a["total_questions"] }}</td>
+              <td>{{ a["time_taken_seconds"] or 0 }}</td>
+              <td>{{ a["started_at"]|date_only }}</td>
+              <td>
+                <a class="btn btn-primary btn-sm" href="{{ url_for('history', student_name=a['student_name']) }}">
+                  Open
+                </a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7">No exam attempts yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

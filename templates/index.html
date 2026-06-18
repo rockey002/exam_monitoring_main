@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ exam["title"] }} - Remote Exam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div id="browser-warning-banner" class="browser-warning-banner" aria-live="assertive"></div>
+      <div class="hero">
+        <div>
+          <h1 class="hero-title">Automated Behavioural Monitoring Exam</h1>
+          <p class="hero-subtitle">
+            Stay focused and maintain proper exam etiquette.
+          </p>
+          <div class="hero-badges">
+            <span class="badge info">Focus required</span>
+            <span class="badge warning">Eye tracking</span>
+            <span class="badge success">Head movement</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-pills">
+        <a class="nav-pill" href="/student_login">Student login</a>
+        <a class="nav-pill" href="/my_history">My history</a>
+        <a class="nav-pill" href="/login">Admin dashboard</a>
+        <a class="nav-pill danger" href="/student_logout">Logout</a>
+      </div>
+      <div class="monitor-strip card">
+        <div class="monitor-process-grid">
+          <div class="monitor-process">
+            <span>Browser</span>
+            <strong id="browser-process">Active</strong>
+          </div>
+          <div class="monitor-process">
+            <span>Camera</span>
+            <strong id="video-process">Camera active</strong>
+          </div>
+          <div class="monitor-process">
+            <span>Audio</span>
+            <strong id="audio-process">Waiting</strong>
+          </div>
+          <div class="monitor-process">
+            <span>Warnings</span>
+            <strong id="warning-count-label">No warnings</strong>
+          </div>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="video-card">
+            <img src="/video_feed" alt="Exam monitoring stream" />
+          </div>
+          <div class="status-row">
+            <span class="pill"><span class="dot"></span>Monitoring live</span>
+            <span class="pill" id="focus-status">Tab: active</span>
+            <span class="pill" id="mic-status" title="Microphone status">
+              <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+              </svg>
+              <span class="mic-text">waiting</span>
+            </span>
+          </div>
+          <div class="video-warning-panel">
+            <div class="video-warning-title">Exam Warnings</div>
+            <ul id="live-warning-list" class="warn-list video-warning-list">
+              <li class="warn-item">No live warnings</li>
+            </ul>
+          </div>
+          <div class="card card-pad" style="margin-top: 12px">
+            <p style="margin: 0; color: var(--muted); font-size: 0.9rem;">
+              Keep this tab visible and avoid talking or allowing others in front
+              of the camera. All suspicious events are logged for review.
+            </p>
+          </div>
+        </div>
+        <form
+          class="card exam-panel"
+          method="post"
+          action="/submit_exam"
+          id="exam-form"
+          data-duration-seconds="{{ exam_duration_seconds }}"
+        >
+          <div class="status-row" style="justify-content: space-between; margin-bottom: 12px">
+            <div class="exam-title">Exam Questions</div>
+            <div class="timer" id="timer-label"></div>
+          </div>
+          <div class="question-pager-status" id="question-pager-status">
+            Questions 1-5
+          </div>
+          <div class="field-label" style="margin-bottom: 8px;">
+            Exam duration:
+            <strong>
+              {{ (exam_duration_seconds // 60) }}m {{ "%02d"|format(exam_duration_seconds % 60) }}s
+            </strong>
+          </div>
+          <div class="field-label">
+            Student email: <strong>{{ student_name }}</strong>
+          </div>
+          <input type="hidden" name="time_taken_seconds" id="time_taken_seconds" />
+          {% for q in questions %}
+          <div class="question" data-question-index="{{ loop.index0 }}">
+            <div class="question-text">
+              Q{{ loop.index }}. {{ q["text"] }}
+              <span class="badge info" style="margin-left: 8px;">
+                {{ (q["question_type"] or "MCQ").replace("_", " ") }}
+              </span>
+            </div>
+            {% set q_type = (q["question_type"] or "MCQ") %}
+            {% if q_type == "SHORT_ANSWER" %}
+            <div class="options">
+              <label>
+                <input
+                  class="text-input"
+                  type="text"
+                  name="q_{{ q['id'] }}"
+                  placeholder="Type your answer"
+                  required
+                />
+              </label>
+            </div>
+            {% elif q_type == "TRUE_FALSE" %}
+            <div class="options">
+              <label>
+                <input type="radio" name="q_{{ q['id'] }}" value="A" required />
+                True
+              </label>
+              <label>
+                <input type="radio" name="q_{{ q['id'] }}" value="B" />
+                False
+              </label>
+            </div>
+            {% else %}
+            <div class="options">
+              <label>
+                <input type="radio" name="q_{{ q['id'] }}" value="A" required />
+                A) {{ q["option_a"] }}
+              </label>
+              <label>
+                <input type="radio" name="q_{{ q['id'] }}" value="B" />
+                B) {{ q["option_b"] }}
+              </label>
+              <label>
+                <input type="radio" name="q_{{ q['id'] }}" value="C" />
+                C) {{ q["option_c"] }}
+              </label>
+              <label>
+                <input type="radio" name="q_{{ q['id'] }}" value="D" />
+                D) {{ q["option_d"] }}
+              </label>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="question-pager-controls" id="question-pager-controls">
+            <button class="btn btn-secondary" type="button" id="prev-question-page">
+              Previous
+            </button>
+            <span class="question-page-count" id="question-page-count"></span>
+            <button class="btn btn-primary" type="button" id="next-question-page">
+              Next
+            </button>
+          </div>
+          {% if allow_submit %}
+          <div class="submit-footer" id="exam-submit-footer">
+            <button class="btn btn-primary btn-lg" type="submit">Submit Exam</button>
+          </div>
+          {% else %}
+          <div class="flash err" style="margin-top: 16px;">Exam submission is currently disabled by admin.</div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+
+    <script src="/static/js/monitor.js"></script>
+  </body>
+  </html>

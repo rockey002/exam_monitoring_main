@@ -1,0 +1,55 @@
+.result-page {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    linear-gradient(135deg, rgba(91, 78, 230, 0.12), transparent 34%),
+    linear-gradient(315deg, rgba(15, 128, 189, 0.09), transparent 30%),
+    var(--bg-page, #f3f0ff);
+}
+
+.result-card {
+  padding: 32px;
+  text-align: center;
+  animation: cardIn 0.5s ease-out;
+  box-shadow: var(--shadow);
+  max-width: 600px;
+  margin: 0 auto;
+  border-top: 5px solid var(--success);
+}
+
+.result-score {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.result-meta {
+  color: var(--muted);
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

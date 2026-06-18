@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Monitoring Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="stylesheet" href="/static/css/report.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="hero">
+        <div>
+          <h1 class="hero-title">Suspicious Activity Report</h1>
+          <p class="hero-subtitle">
+            Live event feed for video, audio, and browser monitoring.
+          </p>
+          <div class="hero-badges">
+            <span class="badge warning">Alerts</span>
+            <span class="badge info">Timeline</span>
+            <span class="badge success">Audit</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-pills">
+        <a class="nav-pill primary" href="/dashboard">Admin dashboard</a>
+        <a class="nav-pill" href="/admin/history">All Exam History</a>
+        <a class="nav-pill" href="/admin/questions">Question manager</a>
+        <a class="nav-pill" href="/admin/students">Registered students</a>
+        <a class="nav-pill danger" href="/admin_logout">Logout</a>
+      </div>
+      <div class="card report-card" style="margin-top: 12px; padding: 16px;">
+        <form
+          method="post"
+          action="/admin/events/clear"
+          onsubmit="return confirm('Delete all warnings and events?');"
+        >
+          <input type="hidden" name="next" value="/admin/events" />
+          <button class="btn btn-danger" type="submit">Delete All Events</button>
+        </form>
+      </div>
+      <div class="card report-card" style="margin-top: 12px">
+        {% if events %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Student</th>
+              <th>Source</th>
+              <th>Event</th>
+              <th>Severity</th>
+              <th>Details</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in events %}
+            <tr>
+              <td>{{ e["id"] }}</td>
+              <td>{{ e["created_at"]|date_only }}</td>
+              <td>{{ e["student_name"] or "-" }}</td>
+              <td>{{ e["source"] }}</td>
+              <td>{{ e["event_type"] }}</td>
+              <td>
+                <span class="chip {{ e['severity'] or 'warning' }}">
+                  {{ e["severity"] or "warning" }}
+                </span>
+              </td>
+              <td>{{ e["details"] or "" }}</td>
+              <td>
+                <form
+                  method="post"
+                  action="{{ url_for('admin_delete_event', event_id=e['id']) }}"
+                  onsubmit="return confirm('Delete this event?');"
+                >
+                  <input type="hidden" name="next" value="/admin/events" />
+                  <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No events logged yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>

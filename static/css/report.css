@@ -1,0 +1,52 @@
+.report-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.report-card {
+  padding: 22px;
+  animation: cardIn 0.55s ease-out;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--line, rgba(17, 33, 41, 0.12));
+  border-radius: var(--radius-lg, 16px);
+}
+
+.report-card .table,
+.report-card .empty-state {
+  position: relative;
+}
+
+.empty-state {
+  padding: 36px;
+  border-radius: 16px;
+  border: 2px dashed rgba(45, 70, 80, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

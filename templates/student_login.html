@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Student Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="stylesheet" href="/static/css/auth.css" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-card">
+      <h1 class="auth-title">Student login</h1>
+      <div class="auth-subtitle">Sign in with your student account to start the exam</div>
+      <form method="post" action="/student_login">
+        <label class="auth-label">
+          Student email
+          <input
+            class="auth-input"
+            type="email"
+            name="student_email"
+            autocomplete="username"
+            required
+          />
+        </label>
+        <label class="auth-label">
+          Password
+          <input
+            class="auth-input"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+          />
+        </label>
+        <div class="auth-actions">
+          <button class="auth-btn" type="submit">Sign in</button>
+          <a class="auth-mini-link auth-register-btn auth-action-link" href="/register">Create account</a>
+        </div>
+        {% if error %}
+        <div class="auth-error">{{ error }}</div>
+        {% endif %}
+        <div class="auth-note">
+          Use the same password you created on the register page. New student? Create one first.
+        </div>
+        <div class="auth-links">
+          <a class="auth-mini-link auth-action-link" href="/login">Admin login</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

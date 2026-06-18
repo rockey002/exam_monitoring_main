@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Question Manager</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="hero">
+        <div>
+          <h1 class="hero-title">Question Manager</h1>
+          <p class="hero-subtitle">
+            Add, edit, or delete questions for the active exam.
+          </p>
+          <div class="hero-badges">
+            <span class="badge info">Edit</span>
+            <span class="badge warning">Answer keys</span>
+            <span class="badge success">Exam bank</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-pills">
+        <a class="nav-pill primary" href="/dashboard">Back to Dashboard</a>
+        <a class="nav-pill" href="/">Back to Exam</a>
+        <a class="nav-pill danger" href="/admin_logout">Logout</a>
+      </div>
+
+      {% if msg %}
+      <div class="flash ok">{{ msg }}</div>
+      {% endif %}
+      {% if err %}
+      <div class="flash err">{{ err }}</div>
+      {% endif %}
+
+      <div class="card card-pad upload-panel" style="margin-top: 12px">
+        <h2>Upload Questions PDF</h2>
+        <form
+          class="q-form"
+          method="post"
+          action="/admin/questions/upload_pdf"
+          enctype="multipart/form-data"
+        >
+          <label class="field-label" for="questions_pdf">PDF file</label>
+          <input
+            class="text-input"
+            id="questions_pdf"
+            type="file"
+            name="questions_pdf"
+            accept="application/pdf,.pdf"
+            required
+          />
+          <div class="upload-format">
+            Q1. Question text<br />
+            A) Option one<br />
+            B) Option two<br />
+            C) Option three<br />
+            D) Option four<br />
+            Answer: B
+          </div>
+          <div class="control-actions">
+            <button class="btn btn-primary" type="submit">Upload PDF</button>
+            <a class="btn btn-secondary" href="/">Open Exam Page</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="card card-pad" style="margin-top: 12px">
+        <h2>Add New Question</h2>
+        <form class="q-form" method="post" action="/admin/questions/add">
+          <select class="text-input question-type-select" name="question_type" required>
+            <option value="MCQ">MCQ</option>
+            <option value="TRUE_FALSE">True / False</option>
+            <option value="SHORT_ANSWER">Short Answer</option>
+          </select>
+          <input class="text-input" type="text" name="text" placeholder="Question text" required />
+          <div class="grid-2 option-fields">
+            <input class="text-input" type="text" name="option_a" placeholder="Option A" required />
+            <input class="text-input" type="text" name="option_b" placeholder="Option B" required />
+          </div>
+          <div class="grid-2 option-fields">
+            <input class="text-input" type="text" name="option_c" placeholder="Option C" required />
+            <input class="text-input" type="text" name="option_d" placeholder="Option D" required />
+          </div>
+          <div class="grid-2">
+            <select class="text-input correct-option-select" name="correct_option" required>
+              <option value="">Select correct option</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+            <input
+              class="text-input correct-text-field"
+              type="text"
+              name="correct_text"
+              placeholder="Correct answer text"
+              style="display: none;"
+            />
+            <button class="btn btn-primary" type="submit">Add Question</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card card-pad" style="margin-top: 16px">
+        <h2>View and Change Questions</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Exam</th>
+              <th>Question</th>
+              <th>Options</th>
+              <th>Correct</th>
+              <th>Buttons</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for q in questions %}
+            <tr>
+              <td>{{ q["exam_title"] }}</td>
+              <td>
+                <div class="question-order-label">Question {{ loop.index }}</div>
+                <select
+                  form="update-{{ q['id'] }}"
+                  class="text-input question-type-select"
+                  name="question_type"
+                  required
+                  data-current-type="{{ q['question_type'] or 'MCQ' }}"
+                >
+                  <option value="MCQ" {% if (q["question_type"] or "MCQ") == "MCQ" %}selected{% endif %}>MCQ</option>
+                  <option value="TRUE_FALSE" {% if q["question_type"] == "TRUE_FALSE" %}selected{% endif %}>True / False</option>
+                  <option value="SHORT_ANSWER" {% if q["question_type"] == "SHORT_ANSWER" %}selected{% endif %}>Short Answer</option>
+                </select>
+                <div style="margin-top: 6px;">
+                <input
+                  form="update-{{ q['id'] }}"
+                  class="text-input"
+                  type="text"
+                  name="text"
+                  value="{{ q['text'] }}"
+                  required
+                />
+                </div>
+              </td>
+              <td>
+                <div class="grid-2 option-fields">
+                  <input
+                    form="update-{{ q['id'] }}"
+                    class="text-input"
+                    type="text"
+                    name="option_a"
+                    value="{{ q['option_a'] }}"
+                    required
+                  />
+                  <input
+                    form="update-{{ q['id'] }}"
+                    class="text-input"
+                    type="text"
+                    name="option_b"
+                    value="{{ q['option_b'] }}"
+                    required
+                  />
+                </div>
+                <div class="grid-2 option-fields" style="margin-top: 6px">
+                  <input
+                    form="update-{{ q['id'] }}"
+                    class="text-input"
+                    type="text"
+                    name="option_c"
+                    value="{{ q['option_c'] }}"
+                    required
+                  />
+                  <input
+                    form="update-{{ q['id'] }}"
+                    class="text-input"
+                    type="text"
+                    name="option_d"
+                    value="{{ q['option_d'] }}"
+                    required
+                  />
+                </div>
+                <input
+                  form="update-{{ q['id'] }}"
+                  class="text-input correct-text-field"
+                  type="text"
+                  name="correct_text"
+                  value="{{ q['correct_text'] }}"
+                  placeholder="Correct answer text"
+                  style="margin-top: 6px; display: none;"
+                />
+              </td>
+              <td>
+                <select
+                  form="update-{{ q['id'] }}"
+                  class="text-input correct-option-select"
+                  name="correct_option"
+                  required
+                >
+                  <option value="A" {% if q["correct_option"] == "A" %}selected{% endif %}>A</option>
+                  <option value="B" {% if q["correct_option"] == "B" %}selected{% endif %}>B</option>
+                  <option value="C" {% if q["correct_option"] == "C" %}selected{% endif %}>C</option>
+                  <option value="D" {% if q["correct_option"] == "D" %}selected{% endif %}>D</option>
+                </select>
+              </td>
+              <td>
+                <div class="control-actions">
+                  <form
+                    id="update-{{ q['id'] }}"
+                    method="post"
+                    action="/admin/questions/{{ q['id'] }}/update"
+                  >
+                    <button class="btn btn-primary" type="submit">Save</button>
+                  </form>
+                  <form
+                    method="post"
+                    action="/admin/questions/{{ q['id'] }}/delete"
+                    onsubmit="return confirm('Delete this question?');"
+                  >
+                    <button class="btn btn-danger" type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5">No questions found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      function syncQuestionForm(container) {
+        const typeSelect = container.querySelector(".question-type-select");
+        if (!typeSelect) return;
+        const optionFields = container.querySelectorAll(".option-fields input");
+        const optionRows = container.querySelectorAll(".option-fields");
+        const correctOption = container.querySelector(".correct-option-select");
+        const correctText = container.querySelector(".correct-text-field");
+        const type = typeSelect.value;
+
+        if (type === "SHORT_ANSWER") {
+          optionRows.forEach((row) => {
+            row.style.display = "none";
+          });
+          optionFields.forEach((field) => {
+            field.required = false;
+          });
+          if (correctOption) {
+            correctOption.style.display = "none";
+            correctOption.required = false;
+            correctOption.value = "";
+          }
+          if (correctText) {
+            correctText.style.display = "";
+            correctText.required = true;
+          }
+          return;
+        }
+
+        optionRows.forEach((row) => {
+          row.style.display = "";
+        });
+        if (correctText) {
+          correctText.style.display = "none";
+          correctText.required = false;
+        }
+        if (correctOption) {
+          correctOption.style.display = "";
+          correctOption.required = true;
+        }
+
+        if (type === "TRUE_FALSE") {
+          const [a, b, c, d] = optionFields;
+          if (a) {
+            a.value = "True";
+            a.required = true;
+          }
+          if (b) {
+            b.value = "False";
+            b.required = true;
+          }
+          [c, d].forEach((field) => {
+            if (!field) return;
+            field.value = "";
+            field.required = false;
+          });
+          if (correctOption) {
+            Array.from(correctOption.options).forEach((option) => {
+              option.hidden = option.value === "C" || option.value === "D";
+            });
+            if (!["A", "B"].includes(correctOption.value)) {
+              correctOption.value = "A";
+            }
+          }
+          return;
+        }
+
+        optionFields.forEach((field) => {
+          field.required = true;
+        });
+        if (correctOption) {
+          Array.from(correctOption.options).forEach((option) => {
+            option.hidden = false;
+          });
+        }
+      }
+
+      document.querySelectorAll(".question-type-select").forEach((select) => {
+        const container = select.closest("tr") || select.closest("form");
+        if (!container) return;
+        syncQuestionForm(container);
+        select.addEventListener("change", () => {
+          syncQuestionForm(container);
+        });
+      });
+    </script>
+  </body>
+</html>

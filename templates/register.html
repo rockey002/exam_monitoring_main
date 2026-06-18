@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Student Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="stylesheet" href="/static/css/auth.css" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-card">
+      <h1 class="auth-title">Student register</h1>
+      <div class="auth-subtitle">Create your account with email and password</div>
+      <form method="post" action="/register">
+        <label class="auth-label">
+          Student email
+          <input
+            class="auth-input"
+            type="email"
+            name="student_email"
+            autocomplete="username"
+            required
+          />
+        </label>
+        <label class="auth-label">
+          Password
+          <input
+            class="auth-input"
+            type="password"
+            name="password"
+            autocomplete="new-password"
+            minlength="6"
+            required
+          />
+        </label>
+        <label class="auth-label">
+          Confirm password
+          <input
+            class="auth-input"
+            type="password"
+            name="confirm_password"
+            autocomplete="new-password"
+            minlength="6"
+            required
+          />
+        </label>
+        <button class="auth-btn" type="submit">Create account</button>
+        {% if error %}
+        <div class="auth-error">{{ error }}</div>
+        {% endif %}
+        {% if success %}
+        <div class="auth-success">
+          {{ success }}. <a href="/student_login">Login now</a>.
+        </div>
+        {% endif %}
+        <div class="auth-switch" aria-label="Login type">
+          <a class="auth-switch-btn" href="/student_login">Student login</a>
+          <a class="auth-switch-btn" href="/login">Admin login</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="stylesheet" href="/static/css/auth.css" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-card">
+      <h1 class="auth-title">Admin login</h1>
+      <div class="auth-subtitle">Secure dashboard access</div>
+      <form method="post" action="/login">
+        <label class="auth-label">
+          Password
+          <input
+            class="auth-input"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+          />
+        </label>
+        <button class="auth-btn" type="submit">Sign in</button>
+        {% if error %}
+        <div class="auth-error">{{ error }}</div>
+        {% endif %}
+        <div class="auth-links">
+          <a class="auth-mini-link auth-action-link" href="/student_login">Student login</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

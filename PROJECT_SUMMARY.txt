@@ -1,0 +1,319 @@
+PROJECT SUMMARY
+================
+
+Project Name
+------------
+Automated Behavioural Monitoring in Remote Testing Environment
+
+
+1. Overall Purpose
+------------------
+This project is a Flask-based online examination and remote monitoring system.
+It allows students to log in, take an exam in the browser, and be monitored
+during the attempt using webcam analysis, microphone analysis, and browser-side
+activity detection.
+
+The main goal of the project is to reduce cheating risk during online exams by:
+- monitoring face and head behavior through the webcam
+- monitoring suspicious sound or talking through the microphone
+- monitoring browser focus changes, tab switching, and selected keyboard shortcuts
+- logging suspicious events for later review by an administrator
+- allowing administrators to configure monitoring rules and auto-stop limits
+
+
+2. Main Technologies Used
+-------------------------
+- Python
+- Flask
+- SQLite
+- OpenCV
+- MediaPipe-based video analysis (through project analyzer modules)
+- Browser JavaScript for client-side exam monitoring
+- HTML and CSS for student/admin interfaces
+
+
+3. Main Project Modules
+-----------------------
+
+3.1 app.py
+- Main Flask application entry point
+- Handles routing for:
+  - student login and registration
+  - admin login
+  - exam page
+  - exam submission
+  - admin dashboard
+  - question management
+  - student history
+  - event export
+- Manages in-memory monitoring configuration such as:
+  - microphone monitoring enable/disable
+  - auto-stop enable/disable
+  - warning limit
+  - critical warning limit
+  - tab/app-switch limit
+  - allow/disable exam submission
+
+3.2 monitoring_db.py
+- Creates and manages the SQLite database
+- Stores:
+  - suspicious events
+  - exams
+  - questions
+  - exam attempts
+  - responses
+  - students
+- Supports multiple question types:
+  - MCQ
+  - TRUE_FALSE
+  - SHORT_ANSWER
+- Calculates and stores scores after submission
+
+3.3 video_analyzer.py
+- Analyzes webcam frames
+- Detects suspicious behavior such as:
+  - no face visible
+  - multiple faces
+  - looking away
+  - head movement
+  - eye visibility issues
+
+3.4 audio_monitor.py
+- Handles audio monitoring support
+- Detects:
+  - loud noise
+  - voice activity
+  - unwanted talking
+- Browser-side microphone monitoring is the primary active student-facing flow
+
+3.5 static/js/monitor.js
+- Controls browser-side exam monitoring
+- Detects and logs:
+  - tab hidden
+  - window blur / focus loss
+  - suspected Alt+Tab
+  - Windows/Command key usage
+  - selected restricted browser shortcuts
+  - fullscreen exit
+  - page leave / navigation
+- Polls monitoring config from the server
+- Shows live warnings to the student
+- Can auto-submit the exam when rule limits are reached
+
+3.6 Templates
+- templates/index.html
+  Student exam page
+- templates/student_login.html
+  Student login page
+- templates/register.html
+  Student registration page
+- templates/login.html
+  Admin login page
+- templates/admin.html
+  Main admin dashboard
+- templates/admin_questions.html
+  Question management page
+- templates/admin_students.html
+  Registered students page
+- templates/history.html
+  Attempt and warning history page
+- templates/report.html
+  Suspicious event report page
+- templates/submit_result.html
+  Result page after exam submission
+
+3.7 CSS / UI Assets
+- static/css/app.css
+  Shared application styling
+- static/css/auth.css
+  Login/register styling
+- static/css/report.css
+  Report page styling
+- static/img/exam-bg.svg
+  Exam/dashboard background image
+- static/img/auth-bg.svg
+  Auth page background image
+
+
+4. Core Features
+----------------
+
+4.1 Student Authentication
+- Students can register with email and password
+- Students can log in using their registered account
+- Student history can be viewed later
+
+4.2 Admin Authentication
+- Separate admin login flow
+- Admin can access dashboard and controls
+
+4.3 Exam Taking
+- Student can open the exam page after login
+- Exam duration is configurable
+- Exam supports:
+  - MCQ questions
+  - True/False questions
+  - Short answer questions
+- Answers are scored and stored after submission
+
+4.4 Video Monitoring
+- Webcam stream is shown live on the exam page
+- Frames are analyzed continuously
+- Suspicious video events are logged to the database
+
+4.5 Audio Monitoring
+- Microphone access is requested in the browser
+- Audio signals are analyzed for:
+  - background noise
+  - voice activity
+  - unwanted talking
+- Admin can enable or disable microphone monitoring
+
+4.6 Browser Monitoring
+- The system tracks browser visibility and focus behavior
+- It can generate warnings for:
+  - hiding the tab
+  - losing focus
+  - suspected app switching
+  - restricted shortcut usage
+  - fullscreen exit
+- A warning banner is shown on the exam page for detected violations
+
+4.7 Auto-Stop / Auto-Submit
+- Admin can enable auto-stop on violations
+- Admin can manually set:
+  - maximum warning limit
+  - maximum critical warning limit
+  - maximum tab/app-switch limit
+- When limits are reached, the exam can be auto-submitted
+
+4.8 Admin Controls
+- Turn student microphone monitoring ON/OFF
+- Turn auto-stop ON/OFF
+- Set warning thresholds manually
+- Set exam duration
+- Set exam type
+- Enable or disable exam submission
+- Manage question bank
+- Review attempts and suspicious events
+- Export CSV reports
+- Clear stored history
+
+4.9 Reports and History
+- Admin can review suspicious events
+- Students and admins can view student exam history
+- CSV export is available for events and student history
+
+
+5. Database Structure
+---------------------
+The SQLite database stores the following major tables:
+- suspicious_events
+- exams
+- questions
+- exam_attempts
+- responses
+- students
+
+Important stored information includes:
+- event type, severity, source, details, student name, time
+- exam metadata
+- question type and answer keys
+- student attempts and scores
+- per-question responses
+
+
+6. Monitoring Severity Model
+----------------------------
+The project uses event severity levels:
+- info
+- warning
+- critical
+
+Examples:
+- microphone enabled/disabled events are informational
+- tab switching and similar behaviors are warnings
+- loud noise, unwanted talking, fullscreen exit, or restricted shortcuts
+  can be treated as critical
+
+
+7. User Interface Summary
+-------------------------
+The project includes a styled interface for both students and admins.
+
+Current UI characteristics:
+- custom color theme
+- styled buttons and cards
+- exam and auth background images
+- responsive layout
+- live warning area on the exam page
+- admin dashboard with monitoring control forms
+
+
+8. Current Practical Limitations
+--------------------------------
+This is still a browser-based Flask application, so some restrictions apply.
+
+What the project can do:
+- detect many browser-side cheating signals
+- detect focus loss and tab switches
+- detect selected shortcut attempts
+- request fullscreen mode
+- auto-submit the exam if thresholds are reached
+
+What the project cannot fully guarantee:
+- it cannot truly block all desktop applications from opening
+- it cannot fully prevent Windows taskbar usage
+- it cannot reliably detect Task Manager in all cases
+- it cannot enforce kiosk-mode security like a native locked-down exam browser
+
+So this project is a strong browser-based monitoring system, but not a full
+OS-level lockdown environment.
+
+
+9. Current Strengths
+--------------------
+- Combines video, audio, and browser monitoring in one project
+- Includes both student and admin workflows
+- Supports multiple question types
+- Includes history, reports, and CSV export
+- Allows manual admin control of warning limits
+- Has a more polished visual UI than a basic prototype
+
+
+10. Areas for Future Improvement
+--------------------------------
+Possible future improvements include:
+- persistent monitoring configuration in the database instead of memory only
+- secure admin credential storage instead of hardcoded admin password
+- stronger role/session management
+- per-exam creation instead of a mostly single default exam flow
+- richer analytics dashboard
+- mobile phone/object detection
+- stronger anti-cheat integrations
+- native safe-exam browser or kiosk integration
+- cloud deployment hardening
+- automated tests for Flask routes and monitoring helpers
+
+
+11. How to Run
+--------------
+From the project folder:
+
+python app.py
+
+Then open:
+- Student exam/login flow: http://127.0.0.1:5000/
+- Admin login/dashboard: http://127.0.0.1:5000/login
+
+
+12. Current Conclusion
+----------------------
+This project is a full working prototype of an online examination system with
+remote proctoring features. It combines exam delivery, student management,
+admin monitoring controls, event logging, multi-type question support, and a
+styled web interface.
+
+It is best described as a web-based remote exam monitoring platform with
+practical anti-cheating detection, reporting, and configurable warning-based
+auto-stop behavior.

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard - Remote Exam Monitoring</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="hero">
+        <div>
+          <h1 class="hero-title">Admin Dashboard</h1>
+          <p class="hero-subtitle">
+            Control monitoring and manage exam settings in one place.
+          </p>
+          <div class="hero-badges">
+            <span class="badge info">Live controls</span>
+            <span class="badge warning">Exam setup</span>
+            <span class="badge success">Students</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-pills">
+        <a class="nav-pill" href="/admin/history">All Exam History</a>
+        <a class="nav-pill" href="/admin/questions">Question Manager</a>
+        <a class="nav-pill" href="/admin/students">Registered Students</a>
+        <a class="nav-pill" href="/">Back to Exam</a>
+        <a class="nav-pill" href="/student_login">Student Login</a>
+        <a class="nav-pill danger" href="/admin_logout">Logout</a>
+      </div>
+      {% if msg %}
+      <div class="flash ok">{{ msg }}</div>
+      {% endif %}
+      {% if err %}
+      <div class="flash err">{{ err }}</div>
+      {% endif %}
+      <div class="control-row">
+        <div>
+          Student microphone monitoring:
+          <strong>{% if student_mic_enabled %}ON{% else %}OFF{% endif %}</strong>
+        </div>
+        <div class="control-actions">
+          <form method="post" action="/admin/monitoring/mic">
+            <input type="hidden" name="enabled" value="1" />
+            <button class="btn btn-primary" type="submit">Turn ON</button>
+          </form>
+          <form method="post" action="/admin/monitoring/mic">
+            <input type="hidden" name="enabled" value="0" />
+            <button class="btn btn-danger" type="submit">Turn OFF</button>
+          </form>
+        </div>
+      </div>
+      <div class="control-row" style="margin-top: 12px">
+        <div>
+          Exam duration:
+          <strong>{{ exam_duration_minutes }}m {{ "%02d"|format(exam_duration_seconds) }}s</strong>
+        </div>
+        <div class="control-actions">
+          <form method="post" action="/admin/exam/duration">
+            <label class="control-field">
+              <span>Minutes</span>
+              <input
+                class="ctl-input"
+                type="number"
+                name="duration_minutes"
+                min="0"
+                max="300"
+                value="{{ exam_duration_minutes }}"
+                required
+              />
+            </label>
+            <label class="control-field">
+              <span>Seconds</span>
+              <input
+                class="ctl-input"
+                type="number"
+                name="duration_seconds"
+                min="0"
+                max="59"
+                value="{{ exam_duration_seconds }}"
+                required
+              />
+            </label>
+            <button class="btn btn-primary" type="submit">Save Time</button>
+          </form>
+        </div>
+      </div>
+      <div class="control-row" style="margin-top: 12px">
+        <div class="control-summary">
+          <span class="control-summary-label">Warning controls</span>
+        </div>
+        <div class="control-actions">
+          <form method="post" action="/admin/monitoring/auto_stop">
+            <label class="control-field">
+              <span>Warnings</span>
+              <input
+                class="ctl-input"
+                type="number"
+                name="warning_limit"
+                min="1"
+                value="{{ auto_stop_warning_limit }}"
+                required
+              />
+            </label>
+            <input type="hidden" name="critical_limit" value="{{ auto_stop_critical_limit }}" />
+            <label class="control-field">
+              <span>Tab Switch</span>
+              <input
+                class="ctl-input"
+                type="number"
+                name="tab_switch_limit"
+                min="1"
+                value="{{ tab_switch_limit }}"
+                required
+              />
+            </label>
+            <button class="btn btn-primary" type="submit" name="enabled" value="1">Enable</button>
+            <button class="btn btn-secondary" type="submit" name="enabled" value="0">Disable</button>
+          </form>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: 16px">
+        <div class="card card-pad">
+          <h2>Recent Exam Attempts</h2>
+          <div style="margin-bottom: 12px;">
+            <a class="btn btn-primary" href="/admin/history">Open All Exam History</a>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Student</th>
+                <th>Exam</th>
+                <th>Score</th>
+                <th>Time (s)</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in attempts %}
+              <tr>
+                <td>{{ a["id"] }}</td>
+                <td>
+                  <a href="{{ url_for('history', student_name=a['student_name']) }}">
+                    {{ a["student_name"] }}
+                  </a>
+                </td>
+                <td>{{ a["exam_title"] }}</td>
+                <td>{{ a["score"] }}/{{ a["total_questions"] }}</td>
+                <td>{{ a["time_taken_seconds"] or 0 }}</td>
+                <td>{{ a["started_at"]|date_only }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6">No exam attempts yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="card card-pad">
+          <h2>Registered Students</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Joined</th>
+                <th>Attempts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in students %}
+              <tr>
+                <td>{{ s["id"] }}</td>
+                <td>{{ s["student_name"] }}</td>
+                <td>{{ s["created_at"]|date_only }}</td>
+                <td>{{ s["attempts"] }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="4">No registered students yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

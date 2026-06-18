@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Exam Submitted</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="stylesheet" href="/static/css/result.css" />
+  </head>
+  <body class="result-page">
+    <div class="page-shell">
+      <div class="card result-card">
+        <h1>Exam submitted</h1>
+        <div class="result-score">
+          {{ student_name }}, you scored <strong>{{ score }}/{{ total }}</strong>.
+        </div>
+        <div class="result-meta">
+          Your attempt ID is {{ attempt_id }}. Monitoring data (video, audio, and
+          tab events) has been logged and can be reviewed by the exam admin.
+        </div>
+        <div class="result-actions">
+          <a href="/" class="btn btn-primary">Back to exam page</a>
+          <a href="/student_login" class="btn btn-secondary">Student login</a>
+          <a href="/my_history" class="btn btn-secondary">My history</a>
+          <a href="/dashboard" class="btn btn-secondary">Admin dashboard</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

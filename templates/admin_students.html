@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registered Students</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="hero">
+        <div>
+          <h1 class="hero-title">Registered Students</h1>
+          <p class="hero-subtitle">
+            Open a student profile to review their attempts and warnings.
+          </p>
+          <div class="hero-badges">
+            <span class="badge info">Profiles</span>
+            <span class="badge warning">History</span>
+            <span class="badge success">Review</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-pills">
+        <a class="nav-pill primary" href="/dashboard">Back to Dashboard</a>
+        <a class="nav-pill" href="/admin/questions">Question Manager</a>
+        <a class="nav-pill danger" href="/admin_logout">Logout</a>
+      </div>
+      {% if msg %}
+      <div class="flash ok">{{ msg }}</div>
+      {% endif %}
+      {% if err %}
+      <div class="flash err">{{ err }}</div>
+      {% endif %}
+      <div class="card card-pad" style="margin-top: 12px">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Joined</th>
+              <th>Attempts</th>
+              <th>Open</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+            <tr>
+              <td>{{ s["id"] }}</td>
+              <td>{{ s["student_name"] }}</td>
+              <td>{{ s["created_at"]|date_only }}</td>
+              <td>{{ s["attempts"] }}</td>
+              <td>
+                <a class="btn btn-primary" href="{{ url_for('history', student_name=s['student_name']) }}">
+                  View History
+                </a>
+              </td>
+              <td>
+                <form
+                  method="post"
+                  action="{{ url_for('admin_delete_student', student_name=s['student_name']) }}"
+                  onsubmit="return confirm('Delete this student account and all exam history?');"
+                >
+                  <button class="btn btn-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6">No registered students found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
